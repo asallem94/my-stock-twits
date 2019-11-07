@@ -20,3 +20,30 @@
 .App-link {
   color: #09d3ac;
 }
+
+
+.avatar {
+  width: 50;
+  height: 50;
+  border-radius: 50;
+  margin: 20;
+}
+
+.message-container {
+  margin: auto;
+  width: 80%;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+}
+
+.message-content {
+  width: 80%;
+  display: flex;
+  /* flex-flow: column; */
+  justify-content: flex-start;
+}
+
+.timestamp {
+  align-self: flex-end;
+}
