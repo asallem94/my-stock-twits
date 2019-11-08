@@ -22,10 +22,9 @@ class App extends React.Component{
     this.stockId = 2
   }
   componentDidMount(){
-    // this.fetchMessagesFrom("AAPL")
     this.updateMyStocks();
     // begin fetch stock Messages callback
-    // setInterval(this.updateMyStocks, 5000) //fetch messages every 10 seconds
+    setInterval(this.updateMyStocks, 5000) //fetch messages every 5 seconds
   }
   updateMyStocks() {
     Object.values(this.state.myStocks).forEach(stock=>{

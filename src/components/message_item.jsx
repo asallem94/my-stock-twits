@@ -17,7 +17,6 @@ const getLink = function(stock, id) {
 };
 const getSentiment = function(message) {
 	if (message.entities && message.entities.sentiment) {
-		console.log(message);
 		return (
 			<section className="s-item">
 				<img
@@ -50,7 +49,7 @@ const MessageItem = ({ message }) => {
 						{message.body.split(' ').map((el, id) => (el[0] === '$' ? getLink(el, id) : ` ${el} `))}
 					</p>
 					{message.entities && message.entities.chart ? (
-						<img className="message-img" src={`${message.entities.chart.large}`} />
+						<img className="message-img" src={`${message.entities.chart.large}`} alt="message-img" />
 					) : null}
 				</div>
 			</div>

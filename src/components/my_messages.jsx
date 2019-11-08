@@ -5,7 +5,6 @@ const MyMessages = ({ messages }) => {
 	const displayMessages = Object.values(messages)
 		.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 		.map((message) => <MessageItem key={message.id} message={message} />);
-	console.log(Object.values(messages).map((el) => el.entities));
 	return (
 		<div className="messages-container">
 			<h1>My Messages</h1>
