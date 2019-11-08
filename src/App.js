@@ -22,6 +22,7 @@ class App extends React.Component{
     this.stockId = 2
   }
   handleCors(){
+    console.log('handleCors')
     var cors_api_host = 'cors-anywhere.herokuapp.com';
     var cors_api_url = 'https://' + cors_api_host + '/';
     var slice = [].slice;
