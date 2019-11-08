@@ -23,27 +23,158 @@
 
 
 .avatar {
-  width: 50;
-  height: 50;
-  border-radius: 50;
-  margin: 20;
+  width: 50px;
+  height: 50px;
+  border-radius: 50px;
+  margin: 20px;
+  margin-bottom: 0;
 }
 
-.message-container {
+.container {
   margin: auto;
   width: 80%;
   display: flex;
   flex-flow: column;
+  border-bottom: 1px solid lightblue;
+}
+
+
+.message-content-container {
+  display: flex;
   justify-content: flex-start;
 }
 
 .message-content {
-  width: 80%;
   display: flex;
-  /* flex-flow: column; */
   justify-content: flex-start;
+  flex-flow: row wrap;
+  flex-grow: 1
+}
+
+.message-img {
+  /* height: 300px; */
+  object-fit: contain;
+  flex-grow: 1;
+  max-width: 50%;
+}
+
+.description {
+  text-align: start;
+  word-break: break-word;
+  flex-grow: 1;
+  min-width: 100px;
 }
 
 .timestamp {
   align-self: flex-end;
+}
+
+.user-info {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+  min-width: 135px;
+}
+
+.header-text {
+  margin: 4px 0;
+}
+
+.stock-sym {
+  margin: 0 6px
+}
+
+.stock-item {
+  text-decoration: underline;
+}
+
+
+
+.stock_sym_item {
+  border: 1px solid lightblue;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 5px
+}
+
+.mystocks {
+  list-style-type: none;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  margin: auto;
+}
+
+ul {
+  margin: auto;
+  padding: 0;
+}
+
+.header-title {
+  margin: 10px;
+}
+
+.mystocks-header {
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid lightblue;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  width: 100%;
+}
+
+.mystocks-header-content {
+
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.messages-container {}
+
+.err {
+  margin: 5px;
+  padding: 5px;
+  background-color: lightcoral;
+  border-radius: 4px;
+}
+
+
+.button {
+  border-radius: 4px;
+  padding: 5px;
+  outline: none;
+
+}
+
+.textbox {
+  border: 0 solid white;
+  outline: none
+}
+
+.s-item {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+
+}
+
+.s-index {
+  display: flex;
+  margin: 0 -5px;
+  justify-content: flex-end;
+
+}
+
+.img-icons {
+  width: 15px;
+  height: 15px;
+}
+
+.red {
+  color: red
 }
