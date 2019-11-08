@@ -7,7 +7,7 @@ class App extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      myStocks: { 0:'AAPL', 1:'BABA'},
+      myStocks: { 0:'AAPL'},//, 1:'BABA'},
       // myStocks: { },
       myMessages: {},
       errors: [],
@@ -16,30 +16,12 @@ class App extends React.Component{
     this.fetchMessagesFrom = this.fetchMessagesFrom.bind(this);
     this.removeStockFromWatchList = this.removeStockFromWatchList.bind(this);
     this.addStock = this.addStock.bind(this);
-    // this.handleAddStock = this.handleAddStock.bind(this);
     this.updateMyStocks = this.updateMyStocks.bind(this);
     this.handleRecieveErrors = this.handleRecieveErrors.bind(this);
+    this.handleResponse = this.handleResponse.bind(this);
     this.stockId = 2
   }
-  handleCors(){
-    console.log('handleCors')
-    var cors_api_host = 'cors-anywhere.herokuapp.com';
-    var cors_api_url = 'https://' + cors_api_host + '/';
-    var slice = [].slice;
-    var origin = window.location.protocol + '//' + window.location.host;
-    var open = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function () {
-      var args = slice.call(arguments);
-      var targetOrigin = /^https?:\/\/([^\/]+)/i.exec(args[1]);
-      if (targetOrigin && targetOrigin[0].toLowerCase() !== origin &&
-        targetOrigin[1] !== cors_api_host) {
-        args[1] = cors_api_url + args[1];
-      }
-      return open.apply(this, args);
-    };
-  }
   componentDidMount(){
-    this.handleCors();
     this.updateMyStocks();
     // begin fetch stock Messages callback
     setInterval(this.updateMyStocks, 5000) //fetch messages every 5 seconds
@@ -60,15 +42,17 @@ class App extends React.Component{
       this.setState({myMessages: defaultMyMessages, myStocks: defaultMyStocks})
     }
   }
+  
   addStock(e){
     e.preventDefault();
     const stock = e.currentTarget.children[0].children[0];
-    stock.value = stock.value.toUpperCase();
+    stock.value = stock.value.trim().toUpperCase();
     if (Object.values(this.state.myStocks).includes(stock.value)){
       this.setState({errors: [`You are already watching ${stock.value}`]})
     } else {
       this.setState({fetching: true}, ()=>{
-        this.fetchMessagesFrom(stock.value).then((res) => {
+        this.fetchMessagesFrom(stock.value, 
+        (res) => {
           if (res) {
             this.setState({
               myStocks: Object.assign({}, this.state.myStocks, { [this.stockId]: stock.value }),
@@ -85,26 +69,47 @@ class App extends React.Component{
       })
     }
   }
-  fetchStock(stock){
-    return fetch(`https://api.stocktwits.com/api/2/streams/symbol/${stock}.json`, 
-      {
-        method: "GET",
-      }).then(res => {
-      return res.json();
-    });
+  doCORSRequest(options, callback) {
+    var x = new XMLHttpRequest();
+    const cors_api_url = 'https://cors-anywhere.herokuapp.com/'
+    x.open(options.method, cors_api_url + options.url);
+    x.onload = x.onerror = function () {
+      // console.log(x.response)
+      const res = JSON.parse(x.response);
+      callback(res)
+      // debugger
+      // console.log('handle errors')
+      // printResult(
+      //   options.method + ' ' + options.url + '\n' +
+      //   x.status + ' ' + x.statusText + '\n\n' +
+      //   (x.responseText || '')
+      // );
+    };
+    if (/^POST/i.test(options.method)) {
+      x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    }
+    x.send(options.data);
   }
-  fetchMessagesFrom(stock){
-    return this.fetchStock(stock).then(
-      (res)=>{
-        if (res.errors){
-          this.handleRecieveErrors(res.errors)
-          return false;
-        } else {
-          this.handleRecieveMessages(stock, res.messages);
-          return true;
-        }
+
+  handleResponse(cb){
+    return (res)=>{
+      if (res.errors){
+        this.handleRecieveErrors(res.errors)
+        cb && cb(false);
+      } else {
+        this.handleRecieveMessages(res.symbol.symbol, res.messages);
+        cb && cb(true);
       }
-    )
+    }
+  }
+  fetchMessagesFrom(stock, cb){
+    // return this.fetchStock(stock)
+    this.doCORSRequest({
+        method: 'GET',
+        url: `https://api.stocktwits.com/api/2/streams/symbol/${stock}.json`,
+      },
+      this.handleResponse(cb)
+    );
   }
   handleRecieveMessages(stock, messages){
     this.setState({
@@ -133,13 +138,6 @@ class App extends React.Component{
           errors={this.state.errors}
           removeStockFromWatchList={this.removeStockFromWatchList}
           fetching={this.state.fetching}/>
-        {/* <MyStocks
-          stocks={this.state.myStocks}
-          addStock={this.addStock}
-          errors={this.state.errors}
-          removeStockFromWatchList={this.removeStockFromWatchList}
-          fetching={this.state.fetching}
-        /> */}
         <MyMessages
           messages={Object.assign({},...Object.values(this.state.myMessages))}/>
       </div>
