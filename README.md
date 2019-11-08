@@ -23,3 +23,6 @@ the matching tweets should also disappear.
 
 * Pay attention to details and make the user-interface and user-experience the best you
 possibly can, considering time constraints.
+
+###Live
+See the live version [here](https://my-stock-twits.herokuapp.com/)!
