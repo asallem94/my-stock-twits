@@ -1,42 +1,72 @@
 import React from 'react';
-// import logo from './logo.svg';
 import './App.css';
-import SearchStocks from './components/search_stocks'
-import MyStocks from './components/my_stocks'
-import MyMessages from './components/my_messages'
+import MyStocks from './components/my_stocks';
+import MyMessages from './components/my_messages';
 
 class App extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      myStocks: {},
+      myStocks: { 0:'AAPL', 1:'BABA'},
+      // myStocks: { },
       myMessages: {},
-      stockErrors: [],
-      messagesErrors: []
+      errors: [],
+      fetching: false
     }
     this.fetchMessagesFrom = this.fetchMessagesFrom.bind(this);
+    this.removeStockFromWatchList = this.removeStockFromWatchList.bind(this);
     this.addStock = this.addStock.bind(this);
-    this.stockId = 0
+    // this.handleAddStock = this.handleAddStock.bind(this);
+    this.updateMyStocks = this.updateMyStocks.bind(this);
+    this.handleRecieveErrors = this.handleRecieveErrors.bind(this);
+    this.stockId = 2
   }
   componentDidMount(){
+    // this.fetchMessagesFrom("AAPL")
+    this.updateMyStocks();
     // begin fetch stock Messages callback
-    // setInterval(this.fetchMessages, 10000) //fetch messages every 10 seconds
-    this.fetchMessagesFrom("AAPL")
+    // setInterval(this.updateMyStocks, 5000) //fetch messages every 10 seconds
   }
-  
+  updateMyStocks() {
+    Object.values(this.state.myStocks).forEach(stock=>{
+      this.fetchMessagesFrom(stock)
+    })
+    
+  }
+  removeStockFromWatchList(stockId){
+    return (e)=>{
+      e.preventDefault();
+      const defaultMyMessages = this.state.myMessages;
+      delete defaultMyMessages[this.state.myStocks[stockId]];
+      const defaultMyStocks = this.state.myStocks;
+      delete defaultMyStocks[stockId];
+      this.setState({myMessages: defaultMyMessages, myStocks: defaultMyStocks})
+    }
+  }
   addStock(e){
     e.preventDefault();
     const stock = e.currentTarget.children[0].children[0];
-    
+    stock.value = stock.value.toUpperCase();
     if (Object.values(this.state.myStocks).includes(stock.value)){
-      this.setState({stockErrors: [`You Are already following ${stock.value}`]})
+      this.setState({errors: [`You are already watching ${stock.value}`]})
     } else {
-      this.setState({
-        myStocks: Object.assign({}, this.state.myStocks, {[this.stockId]: stock.value})
+      this.setState({fetching: true}, ()=>{
+        this.fetchMessagesFrom(stock.value).then((res) => {
+          if (res) {
+            this.setState({
+              myStocks: Object.assign({}, this.state.myStocks, { [this.stockId]: stock.value }),
+              fetching: false
+            })
+            stock.value = ""
+            this.stockId++;
+          } else {
+            this.setState({
+              fetching: false
+            })
+          }
+        })
       })
     }
-    stock.value = ""
-    this.stockId++;
   }
   fetchStock(stock){
     return fetch(`https://api.stocktwits.com/api/2/streams/symbol/${stock}.json`, 
@@ -47,31 +77,54 @@ class App extends React.Component{
     });
   }
   fetchMessagesFrom(stock){
-    this.fetchStock(stock).then(
-      (res)=>this.handleRecieveMessages(res.messages),
-      (err)=>console.log(err),
-
+    return this.fetchStock(stock).then(
+      (res)=>{
+        if (res.errors){
+          this.handleRecieveErrors(res.errors)
+          return false;
+        } else {
+          this.handleRecieveMessages(stock, res.messages);
+          return true;
+        }
+      }
     )
   }
-  handleRecieveMessages(messages){
+  handleRecieveMessages(stock, messages){
     this.setState({
         myMessages: Object.assign(
           {},
           this.state.myMessages,
-          ...messages.map(message=>{return ({[message.id]: message})})
-        )
+          {
+            [stock]: Object.assign({},...messages.map(message=>{return ({[message.id]: message})}))
+          }
+        ),
+        errors: []
     })
+  }
+  handleRecieveErrors(errors){
+    this.setState({ errors: errors.map(err => err.message) }) 
   }
   clearStockErrors(){
     this.setState({stockErrors: []})
   }
   render(){
-    console.log(this.state.myMessages)
     return (
       <div className="App">
-        <SearchStocks addStock={this.addStock}/>
-        <MyStocks stocks={this.state.myStocks} errors={this.state.stockErrors}/>
-        <MyMessages messages={this.state.myMessages}/>
+        <MyStocks
+          stocks={this.state.myStocks}
+          addStock={this.addStock}
+          errors={this.state.errors}
+          removeStockFromWatchList={this.removeStockFromWatchList}
+          fetching={this.state.fetching}/>
+        {/* <MyStocks
+          stocks={this.state.myStocks}
+          addStock={this.addStock}
+          errors={this.state.errors}
+          removeStockFromWatchList={this.removeStockFromWatchList}
+          fetching={this.state.fetching}
+        /> */}
+        <MyMessages
+          messages={Object.assign({},...Object.values(this.state.myMessages))}/>
       </div>
     );
   }

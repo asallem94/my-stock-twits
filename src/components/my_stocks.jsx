@@ -1,16 +1,34 @@
 import React from 'react';
-// import MessageItem from './message_item';
+import SearchStocks from './search_stocks';
 
-const MyStocks = ({ stocks }) => {
-	// console.log(stocks);
+const MyStocks = ({ stocks, addStock, errors, fetching, removeStockFromWatchList }) => {
 	const displayStocks = Object.keys(stocks).map((stockId) => {
-		return <li key={stockId}>{stocks[stockId]}</li>;
+		return (
+			<li className="stock_sym_item" key={stockId}>
+				<span className="stock-sym">{stocks[stockId]}</span>
+				<button className="button" onClick={removeStockFromWatchList(stockId)}>
+					<i className="fa fa-times" />
+				</button>
+			</li>
+		);
 	});
 
 	return (
-		<div>
-			<h1>My Stocks</h1>
-			<ul>{displayStocks}</ul>
+		<div className="mystocks-header">
+			<div className="mystocks-header-content">
+				<h1 className="header-title">My Stocks</h1>
+				<ul className="mystocks">
+					{displayStocks}
+					<SearchStocks addStock={addStock} fetching={fetching} />
+				</ul>
+			</div>
+			<div className="errors">
+				{errors.map((err, ind) => (
+					<h6 className="err" key={ind}>
+						{err}
+					</h6>
+				))}
+			</div>
 		</div>
 	);
 };

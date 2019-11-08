@@ -1,11 +1,13 @@
 import React from 'react';
 
-const SearchStocks = ({ addStock }) => {
+const SearchStocks = ({ addStock, fetching }) => {
 	return (
-		<form onSubmit={addStock}>
+		<form className="search-container stock_sym_item" onSubmit={addStock}>
 			<label htmlFor="stocks">
-				<input type="text" />
-				<input type="submit" />
+				<input className="textbox" type="text" disabled={fetching} placeholder="search stock" />
+				<button className="button">
+					<i className="fa fa-search" />
+				</button>
 			</label>
 		</form>
 	);
