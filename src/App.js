@@ -21,7 +21,24 @@ class App extends React.Component{
     this.handleRecieveErrors = this.handleRecieveErrors.bind(this);
     this.stockId = 2
   }
+  handleCors(){
+    var cors_api_host = 'cors-anywhere.herokuapp.com';
+    var cors_api_url = 'https://' + cors_api_host + '/';
+    var slice = [].slice;
+    var origin = window.location.protocol + '//' + window.location.host;
+    var open = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function () {
+      var args = slice.call(arguments);
+      var targetOrigin = /^https?:\/\/([^\/]+)/i.exec(args[1]);
+      if (targetOrigin && targetOrigin[0].toLowerCase() !== origin &&
+        targetOrigin[1] !== cors_api_host) {
+        args[1] = cors_api_url + args[1];
+      }
+      return open.apply(this, args);
+    };
+  }
   componentDidMount(){
+    this.handleCors();
     this.updateMyStocks();
     // begin fetch stock Messages callback
     setInterval(this.updateMyStocks, 5000) //fetch messages every 5 seconds
@@ -67,7 +84,11 @@ class App extends React.Component{
       })
     }
   }
+  handleCors(){
+
+  }
   fetchStock(stock){
+
     return fetch(`https://api.stocktwits.com/api/2/streams/symbol/${stock}.json`, 
       {
         method: "GET",
