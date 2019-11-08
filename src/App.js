@@ -7,9 +7,12 @@ class App extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      myStocks: { 0:'AAPL'},//, 1:'BABA'},
+      myStocks: {
+        0: 'TSLA'
+      },
       // myStocks: { },
       myMessages: {},
+      // messageCount
       errors: [],
       fetching: false
     }
@@ -19,7 +22,9 @@ class App extends React.Component{
     this.updateMyStocks = this.updateMyStocks.bind(this);
     this.handleRecieveErrors = this.handleRecieveErrors.bind(this);
     this.handleResponse = this.handleResponse.bind(this);
-    this.stockId = 2
+    this.updateMessageCount = this.updateMessageCount.bind(this);
+    // this.updateMessageCount()
+    this.stockId = 2;
   }
   componentDidMount(){
     this.updateMyStocks();
@@ -30,7 +35,6 @@ class App extends React.Component{
     Object.values(this.state.myStocks).forEach(stock=>{
       this.fetchMessagesFrom(stock)
     })
-    
   }
   removeStockFromWatchList(stockId){
     return (e)=>{
@@ -55,7 +59,9 @@ class App extends React.Component{
         (res) => {
           if (res) {
             this.setState({
-              myStocks: Object.assign({}, this.state.myStocks, { [this.stockId]: stock.value }),
+              myStocks: Object.assign({}, this.state.myStocks, {
+                [this.stockId]: stock.value
+              }),
               fetching: false
             })
             stock.value = ""
@@ -74,21 +80,10 @@ class App extends React.Component{
     const cors_api_url = 'https://cors-anywhere.herokuapp.com/'
     x.open(options.method, cors_api_url + options.url);
     x.onload = x.onerror = function () {
-      // console.log(x.response)
       const res = JSON.parse(x.response);
-      callback(res)
-      // debugger
-      // console.log('handle errors')
-      // printResult(
-      //   options.method + ' ' + options.url + '\n' +
-      //   x.status + ' ' + x.statusText + '\n\n' +
-      //   (x.responseText || '')
-      // );
+      callback(res);
     };
-    if (/^POST/i.test(options.method)) {
-      x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    x.send(options.data);
+    x.send();
   }
 
   handleResponse(cb){
@@ -103,7 +98,6 @@ class App extends React.Component{
     }
   }
   fetchMessagesFrom(stock, cb){
-    // return this.fetchStock(stock)
     this.doCORSRequest({
         method: 'GET',
         url: `https://api.stocktwits.com/api/2/streams/symbol/${stock}.json`,
@@ -117,23 +111,33 @@ class App extends React.Component{
           {},
           this.state.myMessages,
           {
-            [stock]: Object.assign({},...messages.map(message=>{return ({[message.id]: message})}))
+            [stock]: Object.assign({}, this.state.myMessages[stock], ...messages.map(message => {
+              return ({
+                [message.id]: message
+              })
+            }))
           }
         ),
         errors: []
-    })
+    }, this.updateMessageCount)
   }
   handleRecieveErrors(errors){
     this.setState({ errors: errors.map(err => err.message) }) 
   }
-  clearStockErrors(){
-    this.setState({stockErrors: []})
+  updateMessageCount(){
+    const messageCount = {}
+    Object.values(this.state.myStocks).forEach(stock=> {
+      messageCount[stock] = this.state.myMessages[stock] ? Object.keys(this.state.myMessages[stock]).length : 0;
+    })
+    this.setState({messageCount})
   }
+
   render(){
     return (
       <div className="App">
         <MyStocks
           stocks={this.state.myStocks}
+          messageCount={this.state.messageCount}
           addStock={this.addStock}
           errors={this.state.errors}
           removeStockFromWatchList={this.removeStockFromWatchList}
