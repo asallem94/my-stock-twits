@@ -85,11 +85,7 @@ class App extends React.Component{
       })
     }
   }
-  handleCors(){
-
-  }
   fetchStock(stock){
-
     return fetch(`https://api.stocktwits.com/api/2/streams/symbol/${stock}.json`, 
       {
         method: "GET",
